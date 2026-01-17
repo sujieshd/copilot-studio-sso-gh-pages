@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Copilot Studio SSO Configuration</title>
+    <link rel="stylesheet" href="./assets/styles.css" />
+  </head>
+
+  <body>
+    <main class="container">
+      <header class="header">
+        <h1>Overview of Copilot Studio SSO Configuration</h1>
+        <p class="subtitle">Static site hosted on GitHub Pages.</p>
+      </header>
+
+      <section class="card">
+        <h2>Table of Contents</h2>
+        <ul>
+          <li><a href="#introduction">Introduction</a></li>
+          <li><a href="#getting-started">Getting Started</a></li>
+          <li><a href="#configuration-steps">Configuration Steps</a></li>
+          <li><a href="#additional-resources">Additional Resources</a></li>
+          <li><a href="#troubleshooting">Troubleshooting</a></li>
+        </ul>
+      </section>
+
+      <section class="card" id="introduction">
+        <h2>Introduction</h2>
+        <p>
+          Single Sign-On (SSO) allows users to authenticate once and gain access to multiple applications
+          without logging in separately to each one.
+        </p>
+      </section>
+
+      <section class="card" id="getting-started">
+        <h2>Getting Started</h2>
+        <p>
+          Ensure you have the necessary permissions and access to the identity provider you plan to use.
+        </p>
+      </section>
+
+      <section class="card" id="configuration-steps">
+        <h2>Configuration Steps</h2>
+        <ol>
+          <li><strong>Choose an Identity Provider</strong>: Select an identity provider that supports SSO.</li>
+          <li><strong>Register Your Application</strong>: Register your app in Microsoft Entra ID.</li>
+          <li><strong>Configure Redirect URIs</strong>: Add your GitHub Pages URL as the redirect URI.</li>
+          <li><strong>Implement Authentication Logic</strong>: Add MSAL auth in your web app.</li>
+        </ol>
+      </section>
+
+      <section class="card" id="additional-resources">
+        <h2>Additional Resources</h2>
+        <ul>
+          <li>
+            <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/configure-sso?tabs=webApp" target="_blank" rel="noreferrer">
+              Copilot Studio SSO (webApp)
+            </a>
+          </li>
+          <li>
+            <a href="https://docs.github.com/en/pages" target="_blank" rel="noreferrer">
+              GitHub Pages Documentation
+            </a>
+          </li>
+        </ul>
+      </section>
+
+      <section class="card" id="troubleshooting">
+        <h2>Troubleshooting</h2>
+        <p class="muted">
+          If you want subpages, create more <code>.html</code> files under <code>docs/</code>.
+        </p>
+      </section>
+
+      <footer class="footer">
+        <span class="muted">Last updated: 2026-01-17</span>
+      </footer>
+    </main>
+  </body>
+</html>

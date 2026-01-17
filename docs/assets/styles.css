@@ -1,8 +1,20 @@
+:root {
+  color-scheme: dark;
+  --bg: #0b0f19;
+  --card: #121a2a;
+  --border: #24324f;
+  --text: #e6eaf2;
+  --muted: #a9b4c7;
+  --link: #8ab4ff;
+}
+
+* { box-sizing: border-box; }
+
 body {
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  font-family: system-ui, "Segoe UI", Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
 }
 
 h1, h2, h3 {
@@ -38,3 +50,18 @@ a:hover {
     bottom: 0;
     width: 100%;
 }
+
+.subtitle { margin: 0 0 16px; color: var(--muted); }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  margin: 12px 0;
+}
+
+a { color: var(--link); }
+code { background: rgba(255,255,255,0.06); padding: 0 6px; border-radius: 6px; }
+.footer { margin-top: 18px; }
+.muted { color: var(--muted); }
