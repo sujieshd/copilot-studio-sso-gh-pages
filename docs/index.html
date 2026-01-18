@@ -87,13 +87,17 @@
         const tenantId = "50e627b2-4aa4-4b2f-a97f-a00e384850ca"
         const tokenEndpoint = "https://f4fc370784d1e106bdc328e8a7e575.9d.environment.api.powerplatform.com/powervirtualagents/botsbyschema/cr336_jieAgent/directline/token?api-version=2022-03-01-preview" // you can find the token URL via the Mobile app channel configuration
 
+        // Use a stable redirect URI (directory URL) to match Entra app registration.
+        // Example for GitHub Pages: https://<user>.github.io/<repo>/
+        const redirectUri = new URL('.', window.location.href).href;
+
         // Config object to be passed to Msal on creation
         const msalConfig = {
             auth: {
                 clientId: clientId,
                 authority: "https://login.microsoftonline.com/" + tenantId,
                 // Helps keep redirect URI explicit for silent flows.
-                redirectUri: window.location.origin + window.location.pathname
+                redirectUri
             },
             cache: {
                 // Use localStorage if you want the signed-in state to survive a full refresh.
@@ -140,6 +144,9 @@
                 const accounts = msalInstance.getAllAccounts();
                 if (accounts.length > 0) {
                     setActiveUser(accounts[0]);
+                    if (user?.username) {
+                        localStorage.setItem('msalLoginHint', user.username);
+                    }
                     await renderChatWidget();
                 }
             } catch (err) {
@@ -147,10 +154,35 @@
             }
         }
 
+        function isInteractionRequiredError(err) {
+            const errorCode = err?.errorCode || err?.code;
+            return errorCode === 'interaction_required' ||
+                errorCode === 'login_required' ||
+                errorCode === 'consent_required' ||
+                errorCode === 'no_tokens_found' ||
+                errorCode === 'token_renewal_error';
+        }
+
         async function trySilentSsoOnLoad() {
             // If MSAL supports async initialization, run it.
             if (typeof msalInstance.initialize === 'function') {
                 await msalInstance.initialize();
+            }
+
+            // Handle redirect responses (for redirect-based login fallback).
+            if (typeof msalInstance.handleRedirectPromise === 'function') {
+                try {
+                    const redirectResult = await msalInstance.handleRedirectPromise();
+                    if (redirectResult?.account) {
+                        setActiveUser(redirectResult.account);
+                        if (user?.username) {
+                            localStorage.setItem('msalLoginHint', user.username);
+                        }
+                        return;
+                    }
+                } catch (err) {
+                    console.log('Redirect handling failed:', err);
+                }
             }
 
             const existingAccounts = msalInstance.getAllAccounts();
@@ -162,18 +194,42 @@
             // Attempt a silent SSO (no UI). This works only if the browser already has
             // an Entra ID session for the user and third-party cookie / iframe rules allow it.
             try {
+                document.getElementById('loginStatus').innerHTML = 'Signing you in…';
+
+                const loginHint = localStorage.getItem('msalLoginHint') || undefined;
                 const result = await msalInstance.ssoSilent({
                     ...loginRequest,
-                    redirectUri: window.location.origin + window.location.pathname
+                    redirectUri,
+                    loginHint
                 });
 
                 if (result && result.account) {
                     setActiveUser(result.account);
+                    if (user?.username) {
+                        localStorage.setItem('msalLoginHint', user.username);
+                    }
                 }
             } catch (err) {
                 // Expected in many cases (no existing session, blocked third-party cookies, interaction required).
                 setActiveUser(null);
+
+                const errorCode = err?.errorCode || err?.code || 'unknown_error';
+                document.getElementById('loginStatus').innerHTML = `Silent sign-in not available (${errorCode}).`;
                 console.log('Silent SSO not available:', err);
+
+                // If you want a true "no click" experience, redirect-based login is the only
+                // reliable option (popups are usually blocked without user gesture).
+                // If there is already an Entra session, this redirect may return instantly.
+                if (isInteractionRequiredError(err)) {
+                    try {
+                        await msalInstance.loginRedirect({
+                            ...loginRequest,
+                            redirectUri
+                        });
+                    } catch (redirectErr) {
+                        console.log('Auto loginRedirect failed:', redirectErr);
+                    }
+                }
             }
         }
 
